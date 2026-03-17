@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#0a0a0a" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-out" />
+  <meta name="description" content="Pedestrian signal lamp — turn your phone into a visible amber blinker" />
+  <title>Signal Lamp</title>
+  <link rel="manifest" href="manifest.json" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- Lamp overlay — fills screen when blinking -->
+  <div id="lamp-overlay"></div>
+
+  <!-- Main UI -->
+  <div id="app">
+
+    <header>
+      <span class="wordmark">SIGNAL</span>
+      <button id="btn-fullscreen" class="icon-btn" title="Fullscreen" aria-label="Toggle fullscreen">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/>
+        </svg>
+      </button>
+    </header>
+
+    <main>
+
+      <!-- Lamp visual -->
+      <div id="lamp-stage">
+        <div id="lamp-body">
+          <div id="lamp-lens">
+            <div id="lamp-glow"></div>
+            <div id="lamp-filament"></div>
+          </div>
+        </div>
+        <div id="lamp-status">
+          <span id="status-dot"></span>
+          <span id="status-text">OFF</span>
+        </div>
+      </div>
+
+      <!-- Controls -->
+      <div id="controls">
+
+        <!-- Main toggle -->
+        <button id="btn-toggle" aria-label="Toggle signal lamp">
+          <span id="toggle-label">TAP TO SIGNAL</span>
+        </button>
+
+        <!-- Speed control -->
+        <div class="control-row">
+          <label for="speed-slider" class="control-label">
+            <span>SPEED</span>
+            <span id="speed-value" class="control-value">60 BPM</span>
+          </label>
+          <input type="range" id="speed-slider" min="30" max="120" step="5" value="60" />
+          <div class="speed-markers">
+            <span>SLOW</span>
+            <span>FAST</span>
+          </div>
+        </div>
+
+        <!-- Mode selector -->
+        <div class="control-row">
+          <label class="control-label"><span>MODE</span></label>
+          <div id="mode-selector">
+            <button class="mode-btn active" data-mode="blink">BLINK</button>
+            <button class="mode-btn" data-mode="sos">SOS</button>
+            <button class="mode-btn" data-mode="steady">STEADY</button>
+          </div>
+        </div>
+
+      </div>
+
+    </main>
+
+    <!-- Brightness tip -->
+    <div id="brightness-tip">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="14" height="14">
+        <circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/>
+      </svg>
+      <span>Set phone brightness to maximum for best visibility</span>
+    </div>
+
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

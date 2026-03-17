@@ -1,0 +1,387 @@
+/* ===== Reset & Base ===== */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --amber: #FFA500;
+  --amber-bright: #FFD000;
+  --amber-dim: #7A4800;
+  --bg: #0a0a0a;
+  --bg-2: #141414;
+  --bg-3: #1e1e1e;
+  --border: rgba(255,255,255,0.08);
+  --text: #f0ede8;
+  --text-muted: #6b6860;
+  --text-dim: #3a3835;
+  --radius: 12px;
+  --font-display: 'Syne', sans-serif;
+  --font-mono: 'DM Mono', monospace;
+  --blink-duration: 500ms;
+}
+
+html, body {
+  height: 100%;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-mono);
+  -webkit-font-smoothing: antialiased;
+  overflow: hidden;
+  touch-action: manipulation;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+/* ===== Lamp Overlay (fullscreen flash) ===== */
+#lamp-overlay {
+  position: fixed;
+  inset: 0;
+  background: var(--amber);
+  opacity: 0;
+  pointer-events: none;
+  z-index: 100;
+  transition: opacity 40ms ease;
+  will-change: opacity;
+}
+
+#lamp-overlay.flash-on {
+  opacity: 1;
+}
+
+/* ===== App Shell ===== */
+#app {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  height: 100dvh;
+  max-width: 480px;
+  margin: 0 auto;
+  padding: env(safe-area-inset-top, 0) 24px env(safe-area-inset-bottom, 0);
+}
+
+/* ===== Header ===== */
+header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 0 0;
+  flex-shrink: 0;
+}
+
+.wordmark {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 13px;
+  letter-spacing: 0.2em;
+  color: var(--text-muted);
+}
+
+.icon-btn {
+  width: 36px;
+  height: 36px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg-2);
+  color: var(--text-muted);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s;
+}
+.icon-btn svg { width: 16px; height: 16px; }
+.icon-btn:hover, .icon-btn:active { border-color: var(--amber-dim); color: var(--amber); background: var(--bg-3); }
+
+/* ===== Main ===== */
+main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 40px;
+  padding: 20px 0;
+}
+
+/* ===== Lamp Visual ===== */
+#lamp-stage {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+
+#lamp-body {
+  width: 160px;
+  height: 160px;
+  border-radius: 50%;
+  border: 2px solid var(--bg-3);
+  background: var(--bg-2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  box-shadow: inset 0 0 30px rgba(0,0,0,0.5);
+  transition: box-shadow 0.2s;
+}
+
+#lamp-lens {
+  width: 110px;
+  height: 110px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, #2a2a2a, #111);
+  border: 2px solid #1a1a1a;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.1s;
+}
+
+#lamp-glow {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: radial-gradient(circle at 50% 50%, var(--amber-bright), var(--amber), transparent 70%);
+  opacity: 0;
+  transition: opacity 0.06s ease;
+  will-change: opacity;
+}
+
+#lamp-filament {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 2px solid #333;
+  background: #1a1a1a;
+  position: relative;
+  z-index: 1;
+  transition: all 0.06s ease;
+}
+
+/* Lamp ON state */
+#lamp-body.lamp-on {
+  box-shadow: inset 0 0 30px rgba(0,0,0,0.5), 0 0 40px rgba(255,165,0,0.4), 0 0 80px rgba(255,165,0,0.15);
+}
+#lamp-lens.lamp-on {
+  border-color: var(--amber-dim);
+  background: radial-gradient(circle at 35% 35%, #8a5200, #5a3200);
+}
+#lamp-glow.lamp-on { opacity: 1; }
+#lamp-filament.lamp-on {
+  background: var(--amber-bright);
+  border-color: var(--amber);
+  box-shadow: 0 0 8px var(--amber-bright), 0 0 20px var(--amber);
+}
+
+/* ===== Status indicator ===== */
+#lamp-status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+#status-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--text-dim);
+  transition: background 0.2s;
+}
+#status-dot.active { background: var(--amber); box-shadow: 0 0 6px var(--amber); }
+
+#status-text {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.15em;
+  color: var(--text-muted);
+  min-width: 60px;
+  transition: color 0.2s;
+}
+#status-text.active { color: var(--amber); }
+
+/* ===== Controls ===== */
+#controls {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* Main toggle button */
+#btn-toggle {
+  width: 100%;
+  height: 72px;
+  border-radius: var(--radius);
+  border: 1.5px solid var(--border);
+  background: var(--bg-2);
+  color: var(--text);
+  font-family: var(--font-display);
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  cursor: pointer;
+  transition: all 0.15s;
+  position: relative;
+  overflow: hidden;
+}
+
+#btn-toggle::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, var(--amber) 0%, #FF6B00 100%);
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+
+#btn-toggle #toggle-label {
+  position: relative;
+  z-index: 1;
+}
+
+#btn-toggle:hover { border-color: var(--amber-dim); }
+#btn-toggle:active { transform: scale(0.98); }
+
+#btn-toggle.active {
+  border-color: var(--amber);
+  color: var(--bg);
+}
+#btn-toggle.active::before { opacity: 1; }
+
+/* Speed slider */
+.control-row {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.control-label {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.18em;
+  color: var(--text-muted);
+}
+
+.control-value {
+  color: var(--amber);
+  font-weight: 400;
+}
+
+input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 4px;
+  border-radius: 2px;
+  background: var(--bg-3);
+  outline: none;
+  cursor: pointer;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--amber);
+  border: 3px solid var(--bg);
+  box-shadow: 0 0 8px rgba(255,165,0,0.4);
+  cursor: pointer;
+  transition: transform 0.1s, box-shadow 0.1s;
+}
+
+input[type="range"]::-webkit-slider-thumb:active {
+  transform: scale(1.2);
+  box-shadow: 0 0 16px rgba(255,165,0,0.6);
+}
+
+input[type="range"]::-moz-range-thumb {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--amber);
+  border: 3px solid var(--bg);
+  cursor: pointer;
+}
+
+.speed-markers {
+  display: flex;
+  justify-content: space-between;
+  font-size: 9px;
+  letter-spacing: 0.15em;
+  color: var(--text-dim);
+  padding: 0 2px;
+}
+
+/* Mode selector */
+#mode-selector {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 6px;
+}
+
+.mode-btn {
+  padding: 10px 0;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg-2);
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.mode-btn:hover { border-color: var(--amber-dim); color: var(--text); }
+.mode-btn.active {
+  border-color: var(--amber);
+  color: var(--amber);
+  background: rgba(255,165,0,0.06);
+}
+
+/* ===== Brightness tip ===== */
+#brightness-tip {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 0 20px;
+  font-size: 11px;
+  color: var(--text-dim);
+  letter-spacing: 0.03em;
+  flex-shrink: 0;
+}
+#brightness-tip svg { flex-shrink: 0; opacity: 0.5; }
+
+/* ===== Fullscreen active adjustments ===== */
+:fullscreen #app { max-width: 100%; }
+:-webkit-full-screen #app { max-width: 100%; }
+
+/* ===== SOS animation ===== */
+@keyframes sos-pulse {
+  0%, 100% { opacity: 0; }
+  50% { opacity: 1; }
+}
+
+/* ===== Ambient scanline texture ===== */
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0,0,0,0.05) 2px,
+    rgba(0,0,0,0.05) 4px
+  );
+  pointer-events: none;
+  z-index: 200;
+}
