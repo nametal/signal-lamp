@@ -91,6 +91,17 @@ header {
 .icon-btn svg { width: 16px; height: 16px; }
 .icon-btn:hover, .icon-btn:active { border-color: var(--amber-dim); color: var(--amber); background: var(--bg-3); }
 
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+#btn-mute.muted {
+  border-color: var(--amber-dim);
+  color: var(--amber-dim);
+}
+
 /* ===== Main ===== */
 main {
   flex: 1;

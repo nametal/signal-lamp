@@ -10,6 +10,9 @@ const statusText = document.getElementById('status-text');
 const btnToggle  = document.getElementById('btn-toggle');
 const toggleLabel= document.getElementById('toggle-label');
 const btnFull    = document.getElementById('btn-fullscreen');
+const btnMute    = document.getElementById('btn-mute');
+const iconSoundOn  = document.getElementById('icon-sound-on');
+const iconSoundOff = document.getElementById('icon-sound-off');
 const speedSlider= document.getElementById('speed-slider');
 const speedValue = document.getElementById('speed-value');
 const modeBtns   = document.querySelectorAll('.mode-btn');
@@ -22,6 +25,10 @@ let intervalId = null;
 let wakeLock   = null;
 let lampIsOn   = false;
 
+// ===== Audio =====
+let audioCtx   = null;
+let soundMuted = false;
+
 // SOS pattern: · · · — — — · · · (short short short long long long short short short)
 const SOS_PATTERN = [200,200,200,200,200,200,600,200,600,200,600,200,200,200,200,200,200,600];
 
@@ -29,6 +36,42 @@ const SOS_PATTERN = [200,200,200,200,200,200,600,200,600,200,600,200,200,200,200
 function halfPeriod() {
   // bpm = blinks per minute, each blink = on + off
   return Math.round((60 / bpm) * 1000 / 2);
+}
+
+// ===== Sound synthesis =====
+function playClick(phase) {
+  if (!audioCtx || soundMuted) return;
+  if (audioCtx.state === 'suspended') audioCtx.resume();
+
+  const now = audioCtx.currentTime;
+  const dur = 0.045;
+
+  // Noise burst (click texture)
+  const bufSize = audioCtx.sampleRate * dur | 0;
+  const buf = audioCtx.createBuffer(1, bufSize, audioCtx.sampleRate);
+  const data = buf.getChannelData(0);
+  for (let i = 0; i < bufSize; i++) data[i] = Math.random() * 2 - 1;
+  const noise = audioCtx.createBufferSource();
+  noise.buffer = buf;
+  const noiseGain = audioCtx.createGain();
+  noiseGain.gain.setValueAtTime(phase === 'off' ? 0.55 : 0.75, now);
+  noiseGain.gain.exponentialRampToValueAtTime(0.001, now + dur);
+  noise.connect(noiseGain);
+  noiseGain.connect(audioCtx.destination);
+  noise.start(now);
+  noise.stop(now + dur);
+
+  // Low thump (mechanical resonance)
+  const osc = audioCtx.createOscillator();
+  osc.type = 'sine';
+  osc.frequency.setValueAtTime(phase === 'off' ? 110 : 130, now);
+  const oscGain = audioCtx.createGain();
+  oscGain.gain.setValueAtTime(phase === 'off' ? 0.45 : 0.6, now);
+  oscGain.gain.exponentialRampToValueAtTime(0.001, now + dur);
+  osc.connect(oscGain);
+  oscGain.connect(audioCtx.destination);
+  osc.start(now);
+  osc.stop(now + dur);
 }
 
 // ===== Lamp on/off =====
@@ -39,6 +82,7 @@ function setLamp(on) {
   lampLens.classList.toggle('lamp-on', on);
   lampGlow.classList.toggle('lamp-on', on);
   lampFila.classList.toggle('lamp-on', on);
+  if (active && mode !== 'steady') playClick(on ? 'on' : 'off');
 }
 
 // ===== Status UI =====
@@ -118,6 +162,7 @@ function stopSOS() {
 
 // ===== Toggle =====
 function toggle() {
+  if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
   active = !active;
   btnToggle.classList.toggle('active', active);
   toggleLabel.textContent = active ? 'SIGNALLING — TAP TO STOP' : 'TAP TO SIGNAL';
@@ -162,6 +207,16 @@ modeBtns.forEach(btn => {
 // ===== Toggle button =====
 btnToggle.addEventListener('click', toggle);
 
+// ===== Mute =====
+btnMute.addEventListener('click', () => {
+  if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  soundMuted = !soundMuted;
+  btnMute.classList.toggle('muted', soundMuted);
+  btnMute.setAttribute('aria-pressed', soundMuted);
+  iconSoundOn.style.display  = soundMuted ? 'none' : '';
+  iconSoundOff.style.display = soundMuted ? ''     : 'none';
+});
+
 // ===== Fullscreen =====
 btnFull.addEventListener('click', () => {
   if (!document.fullscreenElement && !document.webkitFullscreenElement) {
@@ -193,6 +248,7 @@ async function releaseWakeLock() {
 document.addEventListener('visibilitychange', () => {
   if (document.visibilityState === 'visible' && active) {
     requestWakeLock();
+    if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
   }
 });
 
